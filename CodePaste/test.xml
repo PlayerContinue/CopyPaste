@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <node>
+    <name>test</name>
+    <copy>test2</copy>
+  </node>
+  
+</root>
