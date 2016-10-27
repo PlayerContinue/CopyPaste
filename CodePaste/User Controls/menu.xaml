@@ -13,6 +13,7 @@
             <MenuItem x:Name="AddNew" Header="N_ew" HorizontalAlignment="Left" Width="150" Click="ChangeView"/>
             <MenuItem x:Name="AddCopy" Header="C_opy" HorizontalAlignment="Left" Width="150" Click="ChangeView"/>
             <MenuItem x:Name="Clipboard" Header="C_lipboard" HorizontalAlignment="Left" Width="150" Click="ChangeView"/>
+            <MenuItem x:Name="Edit" Header="E_dit" HorizontalAlignment="Left" Width="150" Click="ChangeView"/>
         </MenuItem>
     </Menu>
 

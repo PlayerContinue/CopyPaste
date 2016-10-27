@@ -74,6 +74,9 @@
     <Compile Include="User Controls\ClipboardText.xaml.cs">
       <DependentUpon>ClipboardText.xaml</DependentUpon>
     </Compile>
+    <Compile Include="User Controls\EditPage.xaml.cs">
+      <DependentUpon>EditPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="User Controls\CopyPage.xaml.cs">
       <DependentUpon>CopyPage.xaml</DependentUpon>
     </Compile>
@@ -114,6 +117,10 @@
     <Page Include="User Controls\ClipboardText.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="User Controls\EditPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="User Controls\CopyPage.xaml">
       <SubType>Designer</SubType>

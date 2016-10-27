@@ -30,20 +30,8 @@ namespace CodePaste.User_Controls
 
         private void AddToXML(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                XMLDocumentModel _document = ((MainControlModel)this.DataContext).Document;
-                XmlNode _root = _document.Document.GetElementsByTagName("root")[0];
-                XmlElement _newElement = _document.Document.CreateElement("node");
-                _newElement.InnerText = this.Description.Text;
-                _newElement.SetAttribute("name", this.Title.Text);
-                _root.AppendChild(_newElement);
-                _document.SaveXML();
-                ClearText();
-            }
-            catch(Exception x) {
-                throw x; 
-            }
+            EditXMLDocument.AddToXML(((MainControlModel)this.DataContext).Document,this.Title.Text,this.Description.Text);
+            ClearText();
         }
 
         public void ClearText()
@@ -55,5 +43,33 @@ namespace CodePaste.User_Controls
 
         
 
+    }
+
+    /// <summary>
+    /// Object containing function for editing an xmldocument for the current program
+    /// </summary>
+    public class EditXMLDocument
+    {
+        public static void AddToXML(XMLDocumentModel document,string title,string description){
+            try
+            {
+                
+                XmlNode _root = document.Document.GetElementsByTagName("root")[0];
+                XmlElement _newElement = document.Document.CreateElement("node");
+                _newElement.InnerText = description;
+                _newElement.SetAttribute("name", title);
+                _root.AppendChild(_newElement);
+                document.SaveXML();
+                
+            }
+            catch(Exception x) {
+                throw x; 
+            }
+        }
+
+        public static void EditXML(XMLDocumentModel document, string previousTitle, string newtitle, string newDescription)
+        {
+
+        }
     }
 }

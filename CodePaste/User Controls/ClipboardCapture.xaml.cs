@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -187,15 +188,8 @@ namespace CodePaste.User_Controls
 
         private void UpdateClipboardList(ImageSource value)
         {
-                UpdateClipboardListInner();
-                _ClipBoardList[0].UpdateValue(value);
-                OnPropertyChanged("ClipBoardList");
-        }
-
-        private void UpdateClipboardList(String value)
-        {
-            //Required in order to block more than single copy from showing up in the list
-            if (_ClipBoardList.Count==0 || value.CompareTo(_ClipBoardList[0].StringValue) != 0)
+            
+            if (_ClipBoardList.Count == 0 || !_ClipBoardList[0].IsEqual(value))
             {
                 UpdateClipboardListInner();
                 _ClipBoardList[0].UpdateValue(value);
@@ -203,6 +197,20 @@ namespace CodePaste.User_Controls
             }
         }
 
+        private void UpdateClipboardList(String value)
+        {
+            //Required in order to block more than single copy from showing up in the list
+            if (_ClipBoardList.Count == 0 || !_ClipBoardList[0].IsEqual(value))
+            {
+                UpdateClipboardListInner();
+                _ClipBoardList[0].UpdateValue(value);
+                OnPropertyChanged("ClipBoardList");
+            }
+        }
+
+
+
+        
 
 
     }

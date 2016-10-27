@@ -1,6 +1,8 @@
 ﻿using CodePaste.Base_Classes;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -99,7 +101,40 @@ namespace CodePaste.User_Controls
             OnPropertyChanged("IsImage");
             OnPropertyChanged("IsString");
         }
+
+        public bool IsEqual(String value)
+        {
+
+            if (!this.VisableType.Equals("string"))
+            {
+                //Current object isn't a string, so they can't be compared 
+                return false;
+            }
+
+            return this.StringValue.Equals(value);
+
+
+
+        }
+
+        public bool IsEqual(ImageSource image)
+        {
+            if (!this.VisableType.Equals("image"))
+            {
+                //Not an image, so return it
+                return false;
+            }
+
+           
+            //Convert to a BitmapSource 
+            //BitmapImage _image1 = (this.ImageValue as BitmapSource).ToBitmapImage();
+           // BitmapImage _image2 = (image as BitmapSource).ToBitmapImage();
+            //bool _temp = _image1.IsEqual(_image2);
+            return true;
+        }
+
     }
+
 
     /// <summary>
     /// Interaction logic for ClipboardData.xaml
@@ -123,6 +158,11 @@ namespace CodePaste.User_Controls
             }
         }
 
+
+        /// <summary>
+        /// Change the displayed type depending on if it is an image or string
+        /// </summary>
+        /// <param name="container"></param>
         private void ChangeDisplayType(ClipboardDataContainer container)
         {
             if (container.VisableType != null)
@@ -140,6 +180,102 @@ namespace CodePaste.User_Controls
                 this._Docker.Children.Add(this._Cache[container.VisableType]);
             }
         }
+
+
+
+    }
+
+    /// <summary>
+    /// Convert images to byte arrays
+    /// Can currently convert BitmapImages
+    /// </summary>
+    public static class BitmapImageExtender
+    {
+
+
+        public static bool IsEqual(this BitmapImage image1, BitmapImage image2)
+        {
+
+            return image1.ToBytes().SequenceEqual(image2.ToBytes());
+        }
+
+        public static byte[] ToBytes(this BitmapImage image)
+        {
+            byte[] data = new byte[] { };
+            if (image != null)
+            {
+                try
+                {
+                    var encoder = new BmpBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(image));
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        encoder.Save(ms);
+                        data = ms.ToArray();
+                    }
+                    return data;
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+            return data;
+        }
+
+        public static bool IsEqual(this Bitmap image1, Bitmap image2)
+        {
+            MemoryStream _ms = new MemoryStream();
+
+            image1.Save(_ms, System.Drawing.Imaging.ImageFormat.Png);
+
+            String _firstBitmap = Convert.ToBase64String(_ms.ToArray());
+
+            _ms.Position = 0;
+
+
+            image2.Save(_ms, System.Drawing.Imaging.ImageFormat.Png);
+            String _secondBitmap = Convert.ToBase64String(_ms.ToArray());
+
+
+            return _firstBitmap.Equals(_secondBitmap);
+           
+        }
+
+        public static BitmapImage ToBitmapImage(this BitmapSource source)
+        {
+            JpegBitmapEncoder _encoder = new JpegBitmapEncoder();
+            MemoryStream _memoryStream = new MemoryStream();
+            BitmapImage _bImg = new BitmapImage();
+
+            _encoder.Frames.Add(BitmapFrame.Create(source));
+            _encoder.Save(_memoryStream);
+
+            _memoryStream.Position = 0;
+            _bImg.BeginInit();
+            _bImg.StreamSource = _memoryStream;
+            _bImg.EndInit();
+
+            _memoryStream.Close();
+
+            return _bImg;
+        }
+
+
+        public static Bitmap ToBitmap(this BitmapSource source)
+        {
+            System.Drawing.Bitmap bitmap;
+            using (MemoryStream outStream = new MemoryStream())
+            {
+                BitmapEncoder enc = new BmpBitmapEncoder();
+
+                enc.Frames.Add(BitmapFrame.Create(source));
+                enc.Save(outStream);
+                bitmap = new System.Drawing.Bitmap(outStream);
+            }
+            return bitmap;
+        }
+
 
 
     }

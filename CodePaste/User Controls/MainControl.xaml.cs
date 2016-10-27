@@ -159,6 +159,9 @@ namespace CodePaste.User_Controls
                     case "Clipboard":
                         UserControlCache.AddToCache<ClipboardCapture>(e.NewValue.ToString(), ref _controller._Cache);
                         break;
+                    case "Edit":
+                        UserControlCache.AddToCache<EditPage>(e.NewValue.ToString(), ref _controller._Cache);
+                        break;
                 }
                
                 _controller.MainGrid.Children.Add(_controller._Cache[e.NewValue.ToString()]);
