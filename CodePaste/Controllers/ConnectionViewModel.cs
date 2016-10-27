@@ -7,6 +7,7 @@ using System.Windows.Data;
 using System.ComponentModel;
 using CodePaste.Base_Classes;
 using System.Xml;
+using System.Windows;
 namespace CodePaste.Controller
 {
 
@@ -19,8 +20,55 @@ namespace CodePaste.Controller
         public XMLDocumentModel(string folder)
         {
             _Document = new XmlDocument();
-            _Document.Load(folder);
             _Folder = folder;
+            try
+            {
+                //Attempt to load the document
+                _Document.Load(folder);
+            }
+            catch//Cannot find the file, create a new one
+            {
+                string sMessageBoxText = "We cannot find test.xml, would you like to create one?";
+                string sCaption = "";
+
+                MessageBoxButton btnMessageBox = MessageBoxButton.YesNo;
+                MessageBoxImage icnMessageBox = MessageBoxImage.Warning;
+
+                MessageBoxResult rsltMessageBox = MessageBox.Show(sMessageBoxText, sCaption, btnMessageBox, icnMessageBox);
+
+                switch (rsltMessageBox)
+                {
+                    case MessageBoxResult.Yes:
+                        CreateNewXMLDocument(folder);
+                        break;
+
+                    case MessageBoxResult.No:
+                        Application.Current.Shutdown();
+                        break;
+
+                }
+                
+                
+            }
+        }
+
+        /// <summary>
+        /// Create a new XML doc if one does not exist
+        /// </summary>
+        /// <param name="folder">The location to save the file to</param>
+        public void CreateNewXMLDocument(String folder)
+        {
+            _Document = new XmlDocument();
+            XmlDeclaration xmlDeclaration = _Document.CreateXmlDeclaration("1.0", "UTF-8", null);
+            XmlElement root = _Document.DocumentElement;
+            _Document.InsertBefore(xmlDeclaration, root);
+           
+            //Create Root Node
+            XmlElement element1 = _Document.CreateElement(string.Empty, "root", string.Empty);
+            _Document.AppendChild(element1);
+            
+            _Document.Save(folder);
+           
         }
 
         public void SaveXML(){

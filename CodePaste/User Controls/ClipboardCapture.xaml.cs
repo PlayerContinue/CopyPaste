@@ -123,40 +123,43 @@ namespace CodePaste.User_Controls
         /// <param name="m"></param>
         private void SaveClipboardData()
         {
-            if (Clipboard.ContainsText())
+            if (!WindowInformation.ApplicationIsActivated())
             {
-                // we have some text in the clipboard. 
-                UpdateClipboardList(Clipboard.GetText());
-            }
-            else if (Clipboard.ContainsFileDropList())
-            {
-                // we have a file drop list in the clipboard 
+                if (Clipboard.ContainsText())
+                {
+                    // we have some text in the clipboard. 
+                    UpdateClipboardList(Clipboard.GetText());
+                }
+                else if (Clipboard.ContainsFileDropList())
+                {
+                    // we have a file drop list in the clipboard 
 
-            }
-            else if (Clipboard.ContainsImage())
-            {
-                // Because of a known issue in WPF, 
-                // we have to use a workaround to get correct 
-                // image that can be displayed. 
-                // The image have to be saved to a stream and then 
-                // read out to workaround the issue. 
-                MemoryStream ms = new MemoryStream();
-                BmpBitmapEncoder enc = new BmpBitmapEncoder();
-                enc.Frames.Add(BitmapFrame.Create(Clipboard.GetImage()));
-                enc.Save(ms);
-                ms.Seek(0, SeekOrigin.Begin);
+                }
+                else if (Clipboard.ContainsImage())
+                {
+                    // Because of a known issue in WPF, 
+                    // we have to use a workaround to get correct 
+                    // image that can be displayed. 
+                    // The image have to be saved to a stream and then 
+                    // read out to workaround the issue. 
+                    MemoryStream ms = new MemoryStream();
+                    BmpBitmapEncoder enc = new BmpBitmapEncoder();
+                    enc.Frames.Add(BitmapFrame.Create(Clipboard.GetImage()));
+                    enc.Save(ms);
+                    ms.Seek(0, SeekOrigin.Begin);
 
-                BmpBitmapDecoder dec = new BmpBitmapDecoder(ms,
-                    BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
-                
-                UpdateClipboardList(dec.Frames[0]);
-                
-            }
-            else
-            {
-                Label lb = new Label();
-                lb.Content = "The type of the data in the clipboard is not supported by this sample.";
+                    BmpBitmapDecoder dec = new BmpBitmapDecoder(ms,
+                        BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
 
+                    UpdateClipboardList(dec.Frames[0]);
+
+                }
+                else
+                {
+                    Label lb = new Label();
+                    lb.Content = "The type of the data in the clipboard is not supported by this sample.";
+
+                }
             }
         }
 
@@ -184,17 +187,15 @@ namespace CodePaste.User_Controls
 
         private void UpdateClipboardList(ImageSource value)
         {
-            if (!WindowInformation.ApplicationIsActivated())
-            {
                 UpdateClipboardListInner();
                 _ClipBoardList[0].UpdateValue(value);
                 OnPropertyChanged("ClipBoardList");
-            }
         }
 
         private void UpdateClipboardList(String value)
         {
-            if (!WindowInformation.ApplicationIsActivated())
+            //Required in order to block more than single copy from showing up in the list
+            if (_ClipBoardList.Count==0 || value.CompareTo(_ClipBoardList[0].StringValue) != 0)
             {
                 UpdateClipboardListInner();
                 _ClipBoardList[0].UpdateValue(value);
