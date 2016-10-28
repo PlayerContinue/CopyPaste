@@ -14,7 +14,7 @@ namespace CodePaste.Controller
     public class XMLDocumentModel : ModelBase
     {
         private XmlDocument _Document;
-        public XmlDocument Document{get{return _Document;} set{_Document=value;}}
+        public XmlDocument Document { get { return _Document; } set { _Document = value; } }
         private string _Folder;
 
         public XMLDocumentModel(string folder)
@@ -47,8 +47,8 @@ namespace CodePaste.Controller
                         break;
 
                 }
-                
-                
+
+
             }
         }
 
@@ -62,16 +62,17 @@ namespace CodePaste.Controller
             XmlDeclaration xmlDeclaration = _Document.CreateXmlDeclaration("1.0", "UTF-8", null);
             XmlElement root = _Document.DocumentElement;
             _Document.InsertBefore(xmlDeclaration, root);
-           
+
             //Create Root Node
             XmlElement element1 = _Document.CreateElement(string.Empty, "root", string.Empty);
             _Document.AppendChild(element1);
-            
+
             _Document.Save(folder);
-           
+
         }
 
-        public void SaveXML(){
+        public void SaveXML()
+        {
             _Document.Save(_Folder);
         }
 
@@ -120,10 +121,11 @@ namespace CodePaste.Controller
     /// <summary>
     /// Model of Copyable values
     /// </summary>
-   public class ConnectionViewModel : ModelBase
+    public class ConnectionViewModel : ModelBase
     {
         private readonly CollectionView _codeEntries;
         private string _codeEntry;
+        private string _NewCodeEntry;//Used in edit to store the new value
         private string _codeData;
         private CodeEntry _code;
 
@@ -146,8 +148,18 @@ namespace CodePaste.Controller
 
         }
 
-        
 
+        public String NewCodeEntry
+        {
+
+            get { return _NewCodeEntry; }
+            set
+            {
+                if (_NewCodeEntry == value) return;
+                _NewCodeEntry = value;
+                OnPropertyChanged("NewCodeEntry");
+            }
+        }
 
         public CodeEntry Code
         {
@@ -183,7 +195,9 @@ namespace CodePaste.Controller
             {
                 if (_codeEntry == value) return;
                 _codeEntry = value;
+                _NewCodeEntry = value;
                 OnPropertyChanged("CodeEntry");
+                OnPropertyChanged("NewCodeEntry");
                 Code = FindCodeEntry(value);
             }
         }
