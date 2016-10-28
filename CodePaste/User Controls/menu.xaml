@@ -9,11 +9,13 @@
         <MenuItem Header="_File">
             <MenuItem x:Name="AppExit" Header="E_xit" HorizontalAlignment="Left" Width="140"/>
         </MenuItem>
-        <MenuItem Header="_View">
+        <MenuItem Header="_Edit">
             <MenuItem x:Name="AddNew" Header="N_ew" HorizontalAlignment="Left" Width="150" Click="ChangeView"/>
-            <MenuItem x:Name="AddCopy" Header="C_opy" HorizontalAlignment="Left" Width="150" Click="ChangeView"/>
-            <MenuItem x:Name="Clipboard" Header="C_lipboard" HorizontalAlignment="Left" Width="150" Click="ChangeView"/>
             <MenuItem x:Name="Edit" Header="E_dit" HorizontalAlignment="Left" Width="150" Click="ChangeView"/>
+        </MenuItem>
+        <MenuItem Header="_View">
+        <MenuItem x:Name="AddCopy" Header="C_opy" HorizontalAlignment="Left" Width="150" Click="ChangeView"/>
+            <MenuItem x:Name="Clipboard" Header="C_lipboard" HorizontalAlignment="Left" Width="150" Click="ChangeView"/>
         </MenuItem>
     </Menu>
 
