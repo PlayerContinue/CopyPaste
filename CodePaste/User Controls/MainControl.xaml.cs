@@ -35,7 +35,6 @@ namespace CodePaste.User_Controls
 
         private string _CurrentView;
         private CaptureClipboard _Clipboard;
-
         public XMLDocumentModel Document { get { return _Document; } set { _Document = value; } }
         public ConnectionViewModel ConnectionView { get { return _ConnectionView; } set { _ConnectionView = value; } }
         public CaptureClipboard Clipboard { get { return _Clipboard; } set { _Clipboard = value; } }
@@ -124,6 +123,7 @@ namespace CodePaste.User_Controls
     public partial class MainControl : UserControl
     {
         private Dictionary<String, UserControl> _Cache;
+        private static readonly Dictionary<String, Type> _UserControlTypes = new Dictionary<string, Type>() { { "AddNew", typeof(AddNew) }, { "AddCopy", typeof(CopyPage) }, { "Clipboard", typeof(ClipboardCapture) }, { "Edit", typeof(EditPage) }, { "CheckURLS", typeof(CheckURLS) } };
         public static readonly DependencyProperty _CurrentControl = DependencyProperty.Register("CurrentControl", typeof(string), typeof(MainControl), new PropertyMetadata(string.Empty, OnCurrentControlChanged));
         public MainControl()
         {
@@ -145,23 +145,12 @@ namespace CodePaste.User_Controls
             if (e.NewValue != null)
             {
                 _controller.MainGrid.Children.Clear();
-             
+                Type _userType;
+                _UserControlTypes.TryGetValue(e.NewValue.ToString(), out _userType);
 
-                switch (e.NewValue.ToString())
+                if (_userType != null)
                 {
-                    case "AddNew":
-                        UserControlCache.AddToCache<AddNew>(e.NewValue.ToString(), ref _controller._Cache);
-                        break;
-                    case "AddCopy":
-                        UserControlCache.AddToCache<CopyPage>(e.NewValue.ToString(), ref _controller._Cache);
-                        ((MainControlModel)_controller.DataContext).reloadXML();
-                        break;
-                    case "Clipboard":
-                        UserControlCache.AddToCache<ClipboardCapture>(e.NewValue.ToString(), ref _controller._Cache);
-                        break;
-                    case "Edit":
-                        UserControlCache.AddToCache<EditPage>(e.NewValue.ToString(), ref _controller._Cache);
-                        break;
+                    UserControlCache.AddToCache(e.NewValue.ToString(),_userType, ref _controller._Cache);
                 }
                
                 _controller.MainGrid.Children.Add(_controller._Cache[e.NewValue.ToString()]);
@@ -212,6 +201,19 @@ namespace CodePaste.User_Controls
             if (!cache.TryGetValue(name, out _control))
             {
                 _control = (T)Activator.CreateInstance(typeof(T), new object[] { });
+                cache.Add(name, _control);
+            }
+
+        }
+
+        public static void AddToCache(String name, Type _userType, ref Dictionary<String, UserControl> cache)
+        {
+
+            UserControl _control;
+
+            if (!cache.TryGetValue(name, out _control))
+            {
+                _control = (UserControl)Activator.CreateInstance(_userType, new object[] { });
                 cache.Add(name, _control);
             }
 

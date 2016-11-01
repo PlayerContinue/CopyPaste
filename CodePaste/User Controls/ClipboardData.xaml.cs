@@ -130,7 +130,7 @@ namespace CodePaste.User_Controls
             //BitmapImage _image1 = (this.ImageValue as BitmapSource).ToBitmapImage();
            // BitmapImage _image2 = (image as BitmapSource).ToBitmapImage();
             //bool _temp = _image1.IsEqual(_image2);
-            return true;
+            return false;
         }
 
     }

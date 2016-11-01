@@ -62,6 +62,9 @@
     <Compile Include="User Controls\AddNew.xaml.cs">
       <DependentUpon>AddNew.xaml</DependentUpon>
     </Compile>
+    <Compile Include="User Controls\CheckURLS.xaml.cs">
+      <DependentUpon>CheckURLS.xaml</DependentUpon>
+    </Compile>
     <Compile Include="User Controls\ClipboardCapture.xaml.cs">
       <DependentUpon>ClipboardCapture.xaml</DependentUpon>
     </Compile>
@@ -99,6 +102,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="User Controls\AddNew.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="User Controls\CheckURLS.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
