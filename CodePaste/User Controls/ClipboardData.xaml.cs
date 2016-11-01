@@ -25,7 +25,7 @@ namespace CodePaste.User_Controls
     {
         private String _StringValue;
         private ImageSource _ImageValue;
-
+  
         public ImageSource ImageValue { get { return _ImageValue; } set { _ImageValue = value; } }
         public String StringValue { get { return _StringValue; } set { _StringValue = value; } }
         public Visibility IsImage { get { return (_ImageValue == null) ? Visibility.Collapsed : Visibility.Visible; } }
@@ -142,7 +142,7 @@ namespace CodePaste.User_Controls
     public partial class ClipboardData : UserControl
     {
         private Dictionary<String, UserControl> _Cache;
-
+        private static readonly Dictionary<String, Type> _UserControlDic = new Dictionary<string, Type>() { { "string", typeof(ClipboardText) }, { "image", typeof(ClipboardImage) } };
         public ClipboardData()
         {
             InitializeComponent();
@@ -158,7 +158,7 @@ namespace CodePaste.User_Controls
             }
         }
 
-
+ 
         /// <summary>
         /// Change the displayed type depending on if it is an image or string
         /// </summary>
@@ -167,14 +167,11 @@ namespace CodePaste.User_Controls
         {
             if (container.VisableType != null)
             {
-                switch (container.VisableType)
+                Type _userType;
+                _UserControlDic.TryGetValue(container.VisableType, out _userType);
+                if (_userType != null)
                 {
-                    case "string":
-                        UserControlCache.AddToCache<ClipboardImage>(container.VisableType, ref this._Cache);
-                        break;
-                    case "image":
-                        UserControlCache.AddToCache<ClipboardImage>(container.VisableType, ref this._Cache);
-                        break;
+                    UserControlCache.AddToCache(container.VisableType,_userType, ref this._Cache);
                 }
                 this._Docker.Children.Clear();
                 this._Docker.Children.Add(this._Cache[container.VisableType]);

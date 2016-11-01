@@ -144,12 +144,15 @@ namespace CodePaste.User_Controls
             MainControl _controller = dependencyObject as MainControl;
             if (e.NewValue != null)
             {
-                _controller.MainGrid.Children.Clear();
+                _controller.MainGrid.Children.Clear();//Clear the grid
+                
+                //Retrieve the type of UserControl to fill the old window
                 Type _userType;
                 _UserControlTypes.TryGetValue(e.NewValue.ToString(), out _userType);
 
                 if (_userType != null)
                 {
+                    //Fill the window with the new control either from cache or not
                     UserControlCache.AddToCache(e.NewValue.ToString(),_userType, ref _controller._Cache);
                 }
                
@@ -206,6 +209,12 @@ namespace CodePaste.User_Controls
 
         }
 
+        /// <summary>
+        /// Either add a new page to the cache or pull up the version which was already cached
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="_userType"></param>
+        /// <param name="cache"></param>
         public static void AddToCache(String name, Type _userType, ref Dictionary<String, UserControl> cache)
         {
 
