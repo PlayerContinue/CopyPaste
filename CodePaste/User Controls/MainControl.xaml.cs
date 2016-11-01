@@ -123,12 +123,27 @@ namespace CodePaste.User_Controls
     public partial class MainControl : UserControl
     {
         private Dictionary<String, UserControl> _Cache;
-        private static readonly Dictionary<String, Type> _UserControlTypes = new Dictionary<string, Type>() { { "AddNew", typeof(AddNew) }, { "AddCopy", typeof(CopyPage) }, { "Clipboard", typeof(ClipboardCapture) }, { "Edit", typeof(EditPage) }, { "CheckURLS", typeof(CheckURLS) } };
+        private Dictionary<String, ModelBase> _BaseCache;
+        private static readonly Dictionary<String, Type> _UserControlTypes = new Dictionary<string, Type>() { 
+        { "AddNew", typeof(AddNew) }, 
+        { "AddCopy", typeof(CopyPage) },
+        { "Clipboard", typeof(ClipboardCapture) },
+        { "Edit", typeof(EditPage) }, 
+        { "CheckURLS", typeof(CheckURLS) } };
+
+        private static readonly Dictionary<String, Type> _DataContextTypes = new Dictionary<string, Type>() {
+            {"CheckURLS",
+                typeof(CheckUrlsModel)
+            }};
+
+
         public static readonly DependencyProperty _CurrentControl = DependencyProperty.Register("CurrentControl", typeof(string), typeof(MainControl), new PropertyMetadata(string.Empty, OnCurrentControlChanged));
+        
         public MainControl()
         {
             InitializeComponent();
             _Cache = new Dictionary<string, UserControl>();
+            _BaseCache = new Dictionary<string, ModelBase>();
             _Cache.Add("AddCopy", this.CopyPage);
         }
 
@@ -148,12 +163,19 @@ namespace CodePaste.User_Controls
                 
                 //Retrieve the type of UserControl to fill the old window
                 Type _userType;
-                _UserControlTypes.TryGetValue(e.NewValue.ToString(), out _userType);
+               
 
-                if (_userType != null)
+                if ( _UserControlTypes.TryGetValue(e.NewValue.ToString(), out _userType))
                 {
                     //Fill the window with the new control either from cache or not
                     UserControlCache.AddToCache(e.NewValue.ToString(),_userType, ref _controller._Cache);
+                }
+
+                
+                if (_DataContextTypes.TryGetValue(e.NewValue.ToString(), out _userType))
+                {
+                    UserControlCache.AddToCache(e.NewValue.ToString(),_userType, ref _controller._BaseCache);
+                    _controller._Cache[e.NewValue.ToString()].DataContext = _controller._BaseCache[e.NewValue.ToString()];
                 }
                
                 _controller.MainGrid.Children.Add(_controller._Cache[e.NewValue.ToString()]);
@@ -196,14 +218,14 @@ namespace CodePaste.User_Controls
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="name"></param>
-        public static void AddToCache<T>(String name, ref Dictionary<String, UserControl> cache) where T : UserControl
+        public static void AddToCache<T,Type>(String name, ref Dictionary<String, T> cache) where T : UserControl
         {
 
-            UserControl _control;
+            T _control;
 
             if (!cache.TryGetValue(name, out _control))
             {
-                _control = (T)Activator.CreateInstance(typeof(T), new object[] { });
+                _control = (T)Activator.CreateInstance(typeof(Type), new object[] { });
                 cache.Add(name, _control);
             }
 
@@ -215,14 +237,15 @@ namespace CodePaste.User_Controls
         /// <param name="name"></param>
         /// <param name="_userType"></param>
         /// <param name="cache"></param>
-        public static void AddToCache(String name, Type _userType, ref Dictionary<String, UserControl> cache)
+        public static void AddToCache<T>(String name, Type _userType, ref Dictionary<String, T> cache)
         {
 
-            UserControl _control;
+            T _control;
+
 
             if (!cache.TryGetValue(name, out _control))
             {
-                _control = (UserControl)Activator.CreateInstance(_userType, new object[] { });
+                _control = (T)Activator.CreateInstance(_userType, new object[] { });
                 cache.Add(name, _control);
             }
 
