@@ -44,12 +44,12 @@ namespace CodePaste.User_Controls
             if (_context != null)
             {
                 _context.FileName = DocumentSelector.SingleSelectDocument("Excel Files|*.xls;*.xlsx;*.xlsm");
-                
+
             }
 
         }
 
-       
+
 
 
         private void CheckUrls(object sender, RoutedEventArgs e)
@@ -71,13 +71,13 @@ namespace CodePaste.User_Controls
                 {
 
                 }
-                
-                
+
+
             }
 
         }
 
-       
+
     }
 
     /// <summary>
@@ -103,7 +103,8 @@ namespace CodePaste.User_Controls
             this.xlRange = xlWorksheet.UsedRange;
         }
 
-        public void SaveChange(){
+        public void SaveChange()
+        {
             xlWorkbook.Save();
         }
 
@@ -138,14 +139,14 @@ namespace CodePaste.User_Controls
 
         public static void CheckURLS(ExcelDocument excel, int row1, int row2, int outputColumn)
         {
-            
+
             String _url;
             String _finalURL;
-            Uri _responseURI;
             Regex _urlRegex = new Regex(UsefulRegex.url, RegexOptions.Compiled | RegexOptions.IgnoreCase);
-            String _failToReturn;
+            String _failToReturn = "fail";
             Match _urlMatch;
-            
+            String _outputValue = "";
+            System.Drawing.Color _outputColorValue = System.Drawing.Color.Yellow;
             ResponseInformation _information = new ResponseInformation();
             using (ResponseWebClient _client = new ResponseWebClient())
             {
@@ -153,9 +154,10 @@ namespace CodePaste.User_Controls
         "Mozilla/4.0 (Compatible; Windows NT 5.1; MSIE 6.0) " +
         "(compatible; MSIE 6.0; Windows NT 5.1; " +
         ".NET CLR 1.1.4322; .NET CLR 2.0.50727)";
-              
+
                 for (int i = 1; i <= excel.xlRange.Rows.Count; i++)
                 {
+                    //Confirm both cells contain values
                     if (excel.xlRange.Cells[i, row1] != null && excel.xlRange.Cells[i, row1].Value2 != null && excel.xlRange.Cells[i, row2].Value2 != null)
                     {
                         _url = excel.xlRange.Cells[i, row1].Value2.ToString();
@@ -169,54 +171,68 @@ namespace CodePaste.User_Controls
                             try
                             {
                                 _finalURL = excel.xlRange.Cells[i, row2].Value2.ToString();
-                                TestURL(_url,ref _information);
-                                //_client.DownloadStringTaskAsync(new Uri(_url));
 
-
-                                if (_information.RedirectUrl.Contains(_finalURL))
+                                for (int j = 0; j < 2; j++)//Attempt twice. First time for single redirect, Second for multiple
                                 {
-                                    excel.xlRange.Cells[i, outputColumn] = "True";
-                                }
-                                else
-                                {
-                                    _failToReturn = _information.ToString();
-                                    //Tests if the perhaps it redirects more than one time
-                                    TestURL(_url,ref _information,true);
+                                    TestURL(_url, ref _information, Convert.ToBoolean(j));
                                     if (_information.RedirectUrl.Contains(_finalURL))
                                     {
-                                        excel.xlRange.Cells[i, outputColumn] = "True";
+
+                                        if (j == 1)
+                                        {
+                                            _outputValue = "True, after multiple redirects";
+                                        }
+                                        else
+                                        {
+                                            _outputValue = "True";
+                                        }
+
+                                        _outputColorValue = System.Drawing.Color.Green;
+                                        j = 2;
                                     }
                                     else
                                     {
-                                        excel.xlRange.Cells[i, outputColumn] = "False: " + _failToReturn;
-                                    }
+                                        if (j == 0)
+                                        {
+                                            _failToReturn = _information.ToString();
+                                            
+                                        }
 
-                                    
-                                  
+                                        _outputValue = "False: " + _failToReturn;
+                                        _outputColorValue = System.Drawing.Color.Red;
+                                    }
                                 }
 
                             }
-                            catch (Exception ex)
+                            catch
                             {
-                                excel.xlRange.Cells[i, outputColumn] = "Issue Occured On Call";
+                                _outputValue = "Issue Occured On Call";
+                                _outputColorValue = System.Drawing.Color.Orange;
                             }
                         }
                         else
                         {
-                            excel.xlRange.Cells[i, outputColumn] = "Not a url";
+                            _outputValue = "Not a url";
+                            _outputColorValue = System.Drawing.Color.Blue;
                         }
                     }
+
+                    //Set the Cell Value
+                    excel.xlRange.Cells[i, outputColumn] = _outputValue;
+                    ((Excel.Range)excel.xlRange.Cells[i, outputColumn]).Font.Color = System.Drawing.ColorTranslator.ToOle(_outputColorValue);
                 }
             }
         }
 
 
-        private static void TestURL(String url,ref ResponseInformation responseInformation,bool allowRedirect=false)
+        private static void TestURL(String url, ref ResponseInformation responseInformation, bool allowRedirect = false)
         {
 
-           
+
             HttpWebResponse _response;
-             
+
+            responseInformation.URL = url;
+
             try
             {
                 //Create the WebRequest
@@ -227,12 +243,12 @@ namespace CodePaste.User_Controls
                 _webRequest.AllowAutoRedirect = allowRedirect;
                 _response = (HttpWebResponse)_webRequest.GetResponse();
                 responseInformation.ResponseCode = (int)_response.StatusCode;
-                responseInformation.URL = url;
+
                 if (responseInformation.ResponseCode == 301 || responseInformation.ResponseCode == 302)
                 {
                     responseInformation.RedirectUrl = _response.Headers["Location"];
                 }
-                else if (responseInformation.ResponseCode==200)//Response was successful after redirect
+                else if (responseInformation.ResponseCode == 200)//Response was successful after redirect
                 {
                     responseInformation.RedirectUrl = _response.ResponseUri.AbsoluteUri.ToString();
                 }
@@ -251,27 +267,32 @@ namespace CodePaste.User_Controls
                     responseInformation.ResponseCode = -1;
 
                 }
-                
+                //Failure, so no redirect occurs
+                responseInformation.RedirectUrl = "";
             }
 
-            
+
 
         }
 
-        
+
 
 
     }
 
+
+    /// <summary>
+    /// Container for new response information
+    /// </summary>
     public class ResponseInformation
     {
-        
+
         public String RedirectUrl;
         public int ResponseCode;
         public String URL;
         public override string ToString()
         {
-            return String.Format("RedirectURL:{0},ResponseCode:{1}",RedirectUrl,ResponseCode);
+            return String.Format("RedirectURL:{0},ResponseCode:{1}", RedirectUrl, ResponseCode);
         }
     }
 
