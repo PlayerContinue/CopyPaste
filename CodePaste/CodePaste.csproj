@@ -71,6 +71,7 @@
     </Compile>
     <Compile Include="User Controls\CheckURLS.xaml.cs">
       <DependentUpon>CheckURLS.xaml</DependentUpon>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="User Controls\ClipboardCapture.xaml.cs">
       <DependentUpon>ClipboardCapture.xaml</DependentUpon>

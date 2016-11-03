@@ -177,9 +177,6 @@ namespace CodePaste.User_Controls
                 this._Docker.Children.Add(this._Cache[container.VisableType]);
             }
         }
-
-
-
     }
 
     /// <summary>
