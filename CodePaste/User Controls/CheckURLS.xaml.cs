@@ -7,6 +7,7 @@ using System.Net;
 using System.Runtime.InteropServices;       //Microsoft Excel 14 object in references-> COM tab
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -56,22 +57,32 @@ namespace CodePaste.User_Controls
         {
             CheckUrlsModel _context = this.DataContext as CheckUrlsModel;
 
-
+           
             if (_context != null)
             {
-                try
+                Thread _ExcelThread = new Thread(new ThreadStart(delegate()
                 {
 
-                    this._ExDoc = new ExcelDocument(_context.FileName);//Open new document for reading
-                    UrlChecker.CheckURLS(_ExDoc, Int32.Parse(_context.FromColumn), Int32.Parse(_context.ToColumn), Int32.Parse(_context.OutputColumn));
-                    _ExDoc.SaveChange();
-                    this._ExDoc.CleanExcelDocument();
-                }
-                catch
-                {
+                   
 
-                }
+                   
 
+                    try
+                    {
+
+                        this._ExDoc = new ExcelDocument(_context.FileName);//Open new document for reading
+                        UrlChecker.CheckURLS(_ExDoc, Int32.Parse(_context.FromColumn), Int32.Parse(_context.ToColumn), Int32.Parse(_context.OutputColumn));
+                        _ExDoc.SaveChange();
+                        this._ExDoc.CleanExcelDocument();
+                        MessageBox.Show("Finished", "Complete");
+
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Issue has occured", "Issue");
+                    }
+                }));
+                _ExcelThread.Start();
 
             }
 
