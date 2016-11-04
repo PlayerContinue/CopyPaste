@@ -4,28 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Xml;
 
 namespace CodePaste.User_Controls
 {
-    
-
-   
-
     public class MainControlModel : ModelBase
     {
         private XMLDocumentModel _Document;
@@ -41,7 +26,6 @@ namespace CodePaste.User_Controls
 
         public string CurrentView
         {
-
             get { return _CurrentView; }
             set
             {
@@ -52,19 +36,12 @@ namespace CodePaste.User_Controls
             }
         }
 
-        
-        
-        
-       
-
         public MainControlModel(string folder, Window window)
         {
             _Document = new XMLDocumentModel(folder);
             _ConnectionView = LoadXMLFromFile("test.xml");
-            _Clipboard = new CaptureClipboard(window,9);
+            _Clipboard = new CaptureClipboard(window, 9);
         }
-
-        
 
         private ConnectionViewModel LoadXMLFromFile(String relativePath)
         {
@@ -73,7 +50,6 @@ namespace CodePaste.User_Controls
             List<CodeEntry> _listOfValues = new List<CodeEntry>();
 
             ReadFromXML(_folder, "node", ref _listOfValues);
-
 
             return new ConnectionViewModel(_listOfValues);
         }
@@ -103,18 +79,14 @@ namespace CodePaste.User_Controls
                     _value = _value.TrimEnd('\r', '\n').TrimStart('\r', '\n');
                     listOfValues.Add(new CodeEntry(_name, _value));
                 }
-
             }
             _reader.Close();
-
         }
 
-
-        public void reloadXML(){
-             _ConnectionView = LoadXMLFromFile("test.xml");  
+        public void reloadXML()
+        {
+            _ConnectionView = LoadXMLFromFile("test.xml");
         }
-
-
     }
 
     /// <summary>
@@ -124,11 +96,12 @@ namespace CodePaste.User_Controls
     {
         private Dictionary<String, UserControl> _Cache;
         private Dictionary<String, ModelBase> _BaseCache;
-        private static readonly Dictionary<String, Type> _UserControlTypes = new Dictionary<string, Type>() { 
-        { "AddNew", typeof(AddNew) }, 
+
+        private static readonly Dictionary<String, Type> _UserControlTypes = new Dictionary<string, Type>() {
+        { "AddNew", typeof(AddNew) },
         { "AddCopy", typeof(CopyPage) },
         { "Clipboard", typeof(ClipboardCapture) },
-        { "Edit", typeof(EditPage) }, 
+        { "Edit", typeof(EditPage) },
         { "CheckURLS", typeof(CheckURLS) } };
 
         private static readonly Dictionary<String, Type> _DataContextTypes = new Dictionary<string, Type>() {
@@ -136,9 +109,8 @@ namespace CodePaste.User_Controls
                 typeof(CheckUrlsModel)
             }};
 
-
         public static readonly DependencyProperty _CurrentControl = DependencyProperty.Register("CurrentControl", typeof(string), typeof(MainControl), new PropertyMetadata(string.Empty, OnCurrentControlChanged));
-        
+
         public MainControl()
         {
             InitializeComponent();
@@ -146,7 +118,6 @@ namespace CodePaste.User_Controls
             _BaseCache = new Dictionary<string, ModelBase>();
             _Cache.Add("AddCopy", this.CopyPage);
         }
-
 
         /// <summary>
         /// Action to perform on changing the string
@@ -160,30 +131,26 @@ namespace CodePaste.User_Controls
             if (e.NewValue != null)
             {
                 _controller.MainGrid.Children.Clear();//Clear the grid
-                
+
                 //Retrieve the type of UserControl to fill the old window
                 Type _userType;
-               
 
-                if ( _UserControlTypes.TryGetValue(e.NewValue.ToString(), out _userType))
+                if (_UserControlTypes.TryGetValue(e.NewValue.ToString(), out _userType))
                 {
                     //Fill the window with the new control either from cache or not
-                    UserControlCache.AddToCache(e.NewValue.ToString(),_userType, ref _controller._Cache);
+                    UserControlCache.AddToCache(e.NewValue.ToString(), _userType, ref _controller._Cache);
                 }
 
-                
                 if (_DataContextTypes.TryGetValue(e.NewValue.ToString(), out _userType))
                 {
-                    UserControlCache.AddToCache(e.NewValue.ToString(),_userType, ref _controller._BaseCache);
+                    UserControlCache.AddToCache(e.NewValue.ToString(), _userType, ref _controller._BaseCache);
                     _controller._Cache[e.NewValue.ToString()].DataContext = _controller._BaseCache[e.NewValue.ToString()];
                 }
-               
+
                 _controller.MainGrid.Children.Add(_controller._Cache[e.NewValue.ToString()]);
-               
             }
         }
 
-       
         public String CurrentControl
         {
             get { return GetValue(_CurrentControl).ToString(); }
@@ -193,12 +160,9 @@ namespace CodePaste.User_Controls
             }
         }
 
-
-
-
         public event PropertyChangedEventHandler PropertyChanged;
 
-        void SetValueDP(DependencyProperty property, object value, [System.Runtime.CompilerServices.CallerMemberName] String p = null)
+        private void SetValueDP(DependencyProperty property, object value, [System.Runtime.CompilerServices.CallerMemberName] String p = null)
         {
             SetValue(property, value);
             if (PropertyChanged != null)
@@ -206,21 +170,17 @@ namespace CodePaste.User_Controls
                 PropertyChanged(this, new PropertyChangedEventArgs(p));
             }
         }
-
-
     }
 
     public class UserControlCache
     {
-        
         /// <summary>
         /// Either add a new page to cache or pull up the version which was already cached
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="name"></param>
-        public static void AddToCache<T,Type>(String name, ref Dictionary<String, T> cache) where T : UserControl
+        public static void AddToCache<T, Type>(String name, ref Dictionary<String, T> cache) where T : UserControl
         {
-
             T _control;
 
             if (!cache.TryGetValue(name, out _control))
@@ -228,7 +188,6 @@ namespace CodePaste.User_Controls
                 _control = (T)Activator.CreateInstance(typeof(Type), new object[] { });
                 cache.Add(name, _control);
             }
-
         }
 
         /// <summary>
@@ -239,16 +198,13 @@ namespace CodePaste.User_Controls
         /// <param name="cache"></param>
         public static void AddToCache<T>(String name, Type _userType, ref Dictionary<String, T> cache)
         {
-
             T _control;
-
 
             if (!cache.TryGetValue(name, out _control))
             {
                 _control = (T)Activator.CreateInstance(_userType, new object[] { });
                 cache.Add(name, _control);
             }
-
         }
     }
 }

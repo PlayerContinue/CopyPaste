@@ -1,16 +1,13 @@
-﻿using System;
+﻿using CodePaste.Base_Classes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Data;
-using System.ComponentModel;
-using CodePaste.Base_Classes;
-using System.Xml;
 using System.Windows;
+using System.Windows.Data;
+using System.Xml;
+
 namespace CodePaste.Controller
 {
-
     public class XMLDocumentModel : ModelBase
     {
         private XmlDocument _Document;
@@ -45,10 +42,7 @@ namespace CodePaste.Controller
                     case MessageBoxResult.No:
                         Application.Current.Shutdown();
                         break;
-
                 }
-
-
             }
         }
 
@@ -68,15 +62,12 @@ namespace CodePaste.Controller
             _Document.AppendChild(element1);
 
             _Document.Save(folder);
-
         }
 
         public void SaveXML()
         {
             _Document.Save(_Folder);
         }
-
-
     }
 
     /// <summary>
@@ -86,6 +77,7 @@ namespace CodePaste.Controller
     {
         private string _name;
         private string _copy;
+
         public string Name
         {
             get { return _name; }
@@ -94,6 +86,7 @@ namespace CodePaste.Controller
                 _name = value;
             }
         }
+
         public string Copy { get { return _copy; } set { _copy = value; } }
 
         public CodeEntry(string name)
@@ -135,7 +128,6 @@ namespace CodePaste.Controller
             {
             };
             _codeEntries = new CollectionView(list);
-
         }
 
         /// <summary>
@@ -145,13 +137,10 @@ namespace CodePaste.Controller
         public ConnectionViewModel(IEnumerable<CodeEntry> list)
         {
             _codeEntries = new CollectionView(list.OrderBy(s => s.Name).ToList());
-
         }
-
 
         public String NewCodeEntry
         {
-
             get { return _NewCodeEntry; }
             set
             {
@@ -214,17 +203,5 @@ namespace CodePaste.Controller
 
             return null;
         }
-
-
-
-
     }
-
-
-
-
-
-
-
-
 }

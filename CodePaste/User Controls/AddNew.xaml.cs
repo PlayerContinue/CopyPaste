@@ -1,18 +1,7 @@
 ﻿using CodePaste.Controller;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Xml;
 
 namespace CodePaste.User_Controls
@@ -22,7 +11,6 @@ namespace CodePaste.User_Controls
     /// </summary>
     public partial class AddNew : UserControl
     {
-
         public AddNew()
         {
             InitializeComponent();
@@ -39,10 +27,6 @@ namespace CodePaste.User_Controls
             this.Description.Text = "";
             this.Title.Text = "";
         }
-
-
-
-
     }
 
     /// <summary>
@@ -60,14 +44,12 @@ namespace CodePaste.User_Controls
         {
             try
             {
-
                 XmlNode _root = document.Document.GetElementsByTagName("root")[0];
                 XmlElement _newElement = document.Document.CreateElement("node");
                 _newElement.InnerText = description;
                 _newElement.SetAttribute("name", title);
                 _root.AppendChild(_newElement);
                 document.SaveXML();
-
             }
             catch (Exception x)
             {
@@ -91,8 +73,6 @@ namespace CodePaste.User_Controls
             //Replace the description
             _node.InnerText = newDescription;
             document.SaveXML();
-
-
         }
     }
 }

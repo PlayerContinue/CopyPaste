@@ -2,26 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace CodePaste.User_Controls
 {
-
     public class CaptureClipboard : ModelBase
     {
         private IntPtr _ClipboardViewerNext;
@@ -35,16 +26,16 @@ namespace CodePaste.User_Controls
 
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr SetClipboardViewer(IntPtr hWndNewViewer);
+
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
         public static extern bool
                ChangeClipboardChain(IntPtr hWndRemove,
                                     IntPtr hWndNewNext);
+
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern int SendMessage(IntPtr hwnd, int wMsg,
                                              IntPtr wParam,
                                              IntPtr lParam);
-
-
 
         public CaptureClipboard(Window window, int max_number_saved)
         {
@@ -70,9 +61,8 @@ namespace CodePaste.User_Controls
             _ClipboardViewerNext = (IntPtr)SetClipboardViewer(_Handle);
         }
 
-
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="hwnd"></param>
         /// <param name="msg"></param>
@@ -91,20 +81,20 @@ namespace CodePaste.User_Controls
                 case WM_CHANGECBCHAIN:
                     if (wParam == _ClipboardViewerNext)
                     {
-                        // clipboard viewer chain changed, need to fix it. 
+                        // clipboard viewer chain changed, need to fix it.
                         _ClipboardViewerNext = lParam;
                     }
                     else if (_ClipboardViewerNext != IntPtr.Zero)
                     {
-                        // pass the message to the next viewer. 
+                        // pass the message to the next viewer.
                         SendMessage(_ClipboardViewerNext, msg, wParam, lParam);
                     }
                     break;
 
                 case WM_DRAWCLIPBOARD:
-                    // clipboard content changed 
+                    // clipboard content changed
                     SaveClipboardData();
-                    // pass the message to the next viewer. 
+                    // pass the message to the next viewer.
                     SendMessage(_ClipboardViewerNext, msg, wParam, lParam);
                     break;
             }
@@ -128,21 +118,20 @@ namespace CodePaste.User_Controls
             {
                 if (Clipboard.ContainsText())
                 {
-                    // we have some text in the clipboard. 
+                    // we have some text in the clipboard.
                     UpdateClipboardList(Clipboard.GetText());
                 }
                 else if (Clipboard.ContainsFileDropList())
                 {
-                    // we have a file drop list in the clipboard 
-
+                    // we have a file drop list in the clipboard
                 }
                 else if (Clipboard.ContainsImage())
                 {
-                    // Because of a known issue in WPF, 
-                    // we have to use a workaround to get correct 
-                    // image that can be displayed. 
-                    // The image have to be saved to a stream and then 
-                    // read out to workaround the issue. 
+                    // Because of a known issue in WPF,
+                    // we have to use a workaround to get correct
+                    // image that can be displayed.
+                    // The image have to be saved to a stream and then
+                    // read out to workaround the issue.
                     MemoryStream ms = new MemoryStream();
                     BmpBitmapEncoder enc = new BmpBitmapEncoder();
                     enc.Frames.Add(BitmapFrame.Create(Clipboard.GetImage()));
@@ -153,13 +142,11 @@ namespace CodePaste.User_Controls
                         BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
 
                     UpdateClipboardList(dec.Frames[0]);
-
                 }
                 else
                 {
                     Label lb = new Label();
                     lb.Content = "The type of the data in the clipboard is not supported by this sample.";
-
                 }
             }
         }
@@ -167,28 +154,24 @@ namespace CodePaste.User_Controls
         /// <summary>
         /// Update the list of previous clipboard values with new values
         /// </summary>
-        private void UpdateClipboardListInner(){
-            
+        private void UpdateClipboardListInner()
+        {
             if (_ClipBoardList.Count >= this._MaxNumberSaved)//If the list is full, remove last object
             {
                 //Change position of last to first in order to save memory
-                
+
                 ClipboardDataContainer _mem = _ClipBoardList.Last();
                 _ClipBoardList.RemoveAt(this._MaxNumberSaved - 1);
-                _ClipBoardList.Insert(0,_mem);
+                _ClipBoardList.Insert(0, _mem);
             }
             else
             {
                 _ClipBoardList.Insert(0, new ClipboardDataContainer());
             }
-
-             
-             
         }
 
         private void UpdateClipboardList(ImageSource value)
         {
-            
             if (_ClipBoardList.Count == 0 || !_ClipBoardList[0].IsEqual(value))
             {
                 UpdateClipboardListInner();
@@ -207,16 +190,10 @@ namespace CodePaste.User_Controls
                 OnPropertyChanged("ClipBoardList");
             }
         }
-
-
-
-        
-
-
     }
 
-    public static class WindowInformation{
-
+    public static class WindowInformation
+    {
         [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         private static extern IntPtr GetForegroundWindow();
 
@@ -237,7 +214,6 @@ namespace CodePaste.User_Controls
 
             return activeProcId == procId;
         }
-
     }
 
     /// <summary>
@@ -245,19 +221,9 @@ namespace CodePaste.User_Controls
     /// </summary>
     public partial class ClipboardCapture : UserControl
     {
-
-
-
         public ClipboardCapture()
         {
             InitializeComponent();
-
         }
-
-        
-
     }
-
-
-
 }

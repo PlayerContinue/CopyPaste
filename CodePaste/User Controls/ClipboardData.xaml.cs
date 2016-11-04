@@ -4,32 +4,26 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace CodePaste.User_Controls
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public class ClipboardDataContainer : ModelBase
     {
         private String _StringValue;
         private ImageSource _ImageValue;
-  
+
         public ImageSource ImageValue { get { return _ImageValue; } set { _ImageValue = value; } }
         public String StringValue { get { return _StringValue; } set { _StringValue = value; } }
         public Visibility IsImage { get { return (_ImageValue == null) ? Visibility.Collapsed : Visibility.Visible; } }
         public Visibility IsString { get { return (_StringValue == null) ? Visibility.Collapsed : Visibility.Visible; } }
+
         public String VisableType
         {
             get
@@ -46,14 +40,11 @@ namespace CodePaste.User_Controls
                 {
                     return null;
                 }
-
-
             }
         }
 
         public ClipboardDataContainer()
         {
-
             _StringValue = null;
             _ImageValue = null;
             UpdateProperties();
@@ -104,17 +95,13 @@ namespace CodePaste.User_Controls
 
         public bool IsEqual(String value)
         {
-
             if (!this.VisableType.Equals("string"))
             {
-                //Current object isn't a string, so they can't be compared 
+                //Current object isn't a string, so they can't be compared
                 return false;
             }
 
             return this.StringValue.Equals(value);
-
-
-
         }
 
         public bool IsEqual(ImageSource image)
@@ -125,16 +112,13 @@ namespace CodePaste.User_Controls
                 return false;
             }
 
-           
-            //Convert to a BitmapSource 
+            //Convert to a BitmapSource
             //BitmapImage _image1 = (this.ImageValue as BitmapSource).ToBitmapImage();
-           // BitmapImage _image2 = (image as BitmapSource).ToBitmapImage();
+            // BitmapImage _image2 = (image as BitmapSource).ToBitmapImage();
             //bool _temp = _image1.IsEqual(_image2);
             return false;
         }
-
     }
-
 
     /// <summary>
     /// Interaction logic for ClipboardData.xaml
@@ -143,6 +127,7 @@ namespace CodePaste.User_Controls
     {
         private Dictionary<String, UserControl> _Cache;
         private static readonly Dictionary<String, Type> _UserControlDic = new Dictionary<string, Type>() { { "string", typeof(ClipboardText) }, { "image", typeof(ClipboardImage) } };
+
         public ClipboardData()
         {
             InitializeComponent();
@@ -158,7 +143,6 @@ namespace CodePaste.User_Controls
             }
         }
 
- 
         /// <summary>
         /// Change the displayed type depending on if it is an image or string
         /// </summary>
@@ -171,7 +155,7 @@ namespace CodePaste.User_Controls
                 _UserControlDic.TryGetValue(container.VisableType, out _userType);
                 if (_userType != null)
                 {
-                    UserControlCache.AddToCache(container.VisableType,_userType, ref this._Cache);
+                    UserControlCache.AddToCache(container.VisableType, _userType, ref this._Cache);
                 }
                 this._Docker.Children.Clear();
                 this._Docker.Children.Add(this._Cache[container.VisableType]);
@@ -185,11 +169,8 @@ namespace CodePaste.User_Controls
     /// </summary>
     public static class BitmapImageExtender
     {
-
-
         public static bool IsEqual(this BitmapImage image1, BitmapImage image2)
         {
-
             return image1.ToBytes().SequenceEqual(image2.ToBytes());
         }
 
@@ -211,7 +192,6 @@ namespace CodePaste.User_Controls
                 }
                 catch (Exception ex)
                 {
-
                 }
             }
             return data;
@@ -227,13 +207,10 @@ namespace CodePaste.User_Controls
 
             _ms.Position = 0;
 
-
             image2.Save(_ms, System.Drawing.Imaging.ImageFormat.Png);
             String _secondBitmap = Convert.ToBase64String(_ms.ToArray());
 
-
             return _firstBitmap.Equals(_secondBitmap);
-           
         }
 
         public static BitmapImage ToBitmapImage(this BitmapSource source)
@@ -255,7 +232,6 @@ namespace CodePaste.User_Controls
             return _bImg;
         }
 
-
         public static Bitmap ToBitmap(this BitmapSource source)
         {
             System.Drawing.Bitmap bitmap;
@@ -269,8 +245,5 @@ namespace CodePaste.User_Controls
             }
             return bitmap;
         }
-
-
-
     }
 }

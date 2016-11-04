@@ -1,24 +1,16 @@
 ﻿using CodePaste.Base_Classes;
 using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections.ObjectModel;
 using System.Net;
 using System.Runtime.InteropServices;       //Microsoft Excel 14 object in references-> COM tab
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Excel = Microsoft.Office.Interop.Excel;
+
 namespace CodePaste.User_Controls
 {
     /// <summary>
@@ -45,73 +37,81 @@ namespace CodePaste.User_Controls
             if (_context != null)
             {
                 _context.FileName = DocumentSelector.SingleSelectDocument("Excel Files|*.xls;*.xlsx;*.xlsm");
-
             }
-
         }
 
+        /// <summary>
+        /// Run the url check and save to excel file
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="listOfValues"></param>
 
+        private void LaunchExcelChecker(string filename, int[] listOfValues)
+        {
+            //Create a new thread to prevent lockup on the visual thread
+            //Replace this with a Threadpool in the future for better setup
+            //Perhaps change delegate type as well
+            Thread _ExcelThread = new Thread(new ParameterizedThreadStart(delegate(object obs)
+            {
+                int[] _toFromOutputArray = obs as int[];//[0] = url column to send from, [1] = desired url destination, [2] = output column
+                try
+                {
+                    this._ExDoc = new ExcelDocument(filename);//Open new document for reading
+                    UrlChecker.CheckURLS(_ExDoc, _toFromOutputArray[0], _toFromOutputArray[1], _toFromOutputArray[2]);
+                    _ExDoc.SaveChange();
+                    this._ExDoc.CleanExcelDocument();
+                    MessageBox.Show("Finished", "Complete");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Issue has occured", "Issue", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _ExDoc.CleanExcelDocument();
+                }
+            }));
+            _ExcelThread.Start(listOfValues);
+        }
 
         private void CheckUrls(object sender, RoutedEventArgs e)
         {
             CheckUrlsModel _context = this.DataContext as CheckUrlsModel;
             Int32[] _fromToOutput = new Int32[(int)_context.FromToOutputColumn.Length];
-         
+            StringBuilder _errorMessage = new StringBuilder();
+            bool _failure = false;
             //Confirm that the file is set
             if (String.IsNullOrWhiteSpace(_context.FileName))
             {
-                MessageBox.Show("No file selected, please select a file.", "Select File", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                _errorMessage.Append("No file selected, please select a file.");
+                _errorMessage.AppendLine();
+                _failure = true;
             }
 
-            
-           /* if (!Int32.TryParse(_context.FromColumn, out _fromToOutput[0]) || !Int32.TryParse(_context.ToColumn, out _fromToOutput[1]) || !Int32.TryParse(_context.OutputColumn, out _fromToOutput[2]))
-            {
-
-                
-            }*/
             //Confirm that each of the values is a number
             for (int i = 0; i < _fromToOutput.Length; i++)
             {
-                if(!Int32.TryParse(_context.FromToOutputColumn[i], out _fromToOutput[i])){
-                    MessageBox.Show("Please Fill Out All Three Value With Numbers Greater Than 1", "One of the Rows was left empty", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
+                if (!Int32.TryParse(_context.FromToOutputColumn[i], out _fromToOutput[i]))
+                {
+                    _errorMessage.Append(String.Format("Please fill out {0} with value greater than 1", CheckUrlsModel.ColumnPosition[i]));
+                    _context.FromToOutputColumnColor[i] = "Red";
+
+                    _failure = true;
+                }
+                else
+                {
+                    _context.FromToOutputColumnColor[i] = "White";
                 }
             }
 
+            if (_failure)
+            {
+                MessageBox.Show(_errorMessage.ToString(), "Issue In Form", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
-                if (_context != null)
-                {
-                    //Create a new thread to prevent lockup on the visual thread
-                    //Replace this with a Threadpool in the future for better setup
-                    //Perhaps change delegate type as well
-                    Thread _ExcelThread = new Thread(new ParameterizedThreadStart(delegate(object obs)
-                    {
-
-                        int[] _toFromOutputArray = obs as int[];//[0] = url column to send from, [1] = desired url destination, [2] = output column
-                        try
-                        {
-
-                            this._ExDoc = new ExcelDocument(_context.FileName);//Open new document for reading
-                            UrlChecker.CheckURLS(_ExDoc, _toFromOutputArray[0], _toFromOutputArray[1], _toFromOutputArray[2]);
-                            _ExDoc.SaveChange();
-                            this._ExDoc.CleanExcelDocument();
-                            MessageBox.Show("Finished", "Complete");
-
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show("Issue has occured", "Issue");
-                            _ExDoc.CleanExcelDocument();
-                        }
-                    }));
-                    _ExcelThread.Start(_fromToOutput);
-
-                }
-
+            if (_context != null)
+            {
+                LaunchExcelChecker(_context.FileName, _fromToOutput);
+            }
         }
-
-
     }
 
     /// <summary>
@@ -123,11 +123,6 @@ namespace CodePaste.User_Controls
         public Excel.Workbook xlWorkbook;
         public Excel.Worksheet xlWorksheet;
         public Excel.Range xlRange;
-
-        public ExcelDocument()
-        {
-
-        }
 
         public ExcelDocument(string path)
         {
@@ -168,12 +163,8 @@ namespace CodePaste.User_Controls
 
     public static class UrlChecker
     {
-
-
-
         public static void CheckURLS(ExcelDocument excel, int row1, int row2, int outputColumn)
         {
-
             String _url;
             String _finalURL;
             Regex _urlRegex = new Regex(UsefulRegex.url, RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -182,87 +173,74 @@ namespace CodePaste.User_Controls
             String _outputValue = "";
             System.Drawing.Color _outputColorValue = System.Drawing.Color.Yellow;
             ResponseInformation _information = new ResponseInformation();
-            using (ResponseWebClient _client = new ResponseWebClient())
+
+            for (int i = 1; i <= excel.xlRange.Rows.Count; i++)
             {
-                _client.Headers["User-Agent"] =
-        "Mozilla/4.0 (Compatible; Windows NT 5.1; MSIE 6.0) " +
-        "(compatible; MSIE 6.0; Windows NT 5.1; " +
-        ".NET CLR 1.1.4322; .NET CLR 2.0.50727)";
-
-                for (int i = 1; i <= excel.xlRange.Rows.Count; i++)
+                //Confirm both cells contain values
+                if (excel.xlRange.Cells[i, row1] != null && excel.xlRange.Cells[i, row1].Value2 != null && excel.xlRange.Cells[i, row2].Value2 != null)
                 {
-                    //Confirm both cells contain values
-                    if (excel.xlRange.Cells[i, row1] != null && excel.xlRange.Cells[i, row1].Value2 != null && excel.xlRange.Cells[i, row2].Value2 != null)
+                    _url = excel.xlRange.Cells[i, row1].Value2.ToString();
+                    _urlMatch = _urlRegex.Match(_url);
+                    if (_urlMatch.Success)
                     {
-                        _url = excel.xlRange.Cells[i, row1].Value2.ToString();
-                        _urlMatch = _urlRegex.Match(_url);
-                        if (_urlMatch.Success)
+                        if (!_url.Contains("http"))//Check that the url contains http
                         {
-                            if (!_url.Contains("http"))//Check that the url contains http
-                            {
-                                _url = "http://" + _url;
-                            }
-                            try
-                            {
-                                _finalURL = excel.xlRange.Cells[i, row2].Value2.ToString();
+                            _url = "http://" + _url;
+                        }
+                        try
+                        {
+                            _finalURL = excel.xlRange.Cells[i, row2].Value2.ToString();
 
-                                for (int j = 0; j < 2; j++)//Attempt twice. First time for single redirect, Second for multiple
+                            for (int j = 0; j < 2; j++)//Attempt twice. First time for single redirect, Second for multiple
+                            {
+                                TestURL(_url, ref _information, Convert.ToBoolean(j));
+                                if (_information.RedirectUrl.Contains(_finalURL))
                                 {
-                                    TestURL(_url, ref _information, Convert.ToBoolean(j));
-                                    if (_information.RedirectUrl.Contains(_finalURL))
+                                    if (j == 1)
                                     {
-
-                                        if (j == 1)
-                                        {
-                                            _outputValue = "True, after multiple redirects";
-                                        }
-                                        else
-                                        {
-                                            _outputValue = "True";
-                                        }
-
-                                        _outputColorValue = System.Drawing.Color.Green;
-                                        j = 2;
+                                        _outputValue = "True, after multiple redirects";
                                     }
                                     else
                                     {
-                                        if (j == 0)
-                                        {
-                                            _failToReturn = _information.ToString();
-                                            
-                                        }
-
-                                        _outputValue = "False: " + _failToReturn;
-                                        _outputColorValue = System.Drawing.Color.Red;
+                                        _outputValue = "True";
                                     }
-                                }
 
-                            }
-                            catch
-                            {
-                                _outputValue = "Issue Occured On Call";
-                                _outputColorValue = System.Drawing.Color.Orange;
+                                    _outputColorValue = System.Drawing.Color.Green;
+                                    j = 2;
+                                }
+                                else
+                                {
+                                    if (j == 0)
+                                    {
+                                        _failToReturn = _information.ToString();
+                                    }
+
+                                    _outputValue = "False: " + _failToReturn;
+                                    _outputColorValue = System.Drawing.Color.Red;
+                                }
                             }
                         }
-                        else
+                        catch
                         {
-                            _outputValue = "Not a url";
-                            _outputColorValue = System.Drawing.Color.Blue;
+                            _outputValue = "Issue Occured On Call";
+                            _outputColorValue = System.Drawing.Color.Orange;
                         }
                     }
-
-                    //Set the Cell Value
-                    excel.xlRange.Cells[i, outputColumn] = _outputValue;
-                    ((Excel.Range)excel.xlRange.Cells[i, outputColumn]).Font.Color = System.Drawing.ColorTranslator.ToOle(_outputColorValue);
+                    else
+                    {
+                        _outputValue = "Not a url";
+                        _outputColorValue = System.Drawing.Color.Blue;
+                    }
                 }
+
+                //Set the Cell Value
+                excel.xlRange.Cells[i, outputColumn] = _outputValue;
+                ((Excel.Range)excel.xlRange.Cells[i, outputColumn]).Font.Color = System.Drawing.ColorTranslator.ToOle(_outputColorValue);
             }
         }
 
-
         private static void TestURL(String url, ref ResponseInformation responseInformation, bool allowRedirect = false)
         {
-
-
             HttpWebResponse _response;
 
             responseInformation.URL = url;
@@ -299,31 +277,22 @@ namespace CodePaste.User_Controls
                 else
                 {
                     responseInformation.ResponseCode = -1;
-
                 }
                 //Failure, so no redirect occurs
                 responseInformation.RedirectUrl = "";
             }
-
-
-
         }
-
-
-
-
     }
-
 
     /// <summary>
     /// Container for new response information
     /// </summary>
     public class ResponseInformation
     {
-
         public String RedirectUrl;
         public int ResponseCode;
         public String URL;
+
         public override string ToString()
         {
             return String.Format("RedirectURL:{0},ResponseCode:{1}", RedirectUrl, ResponseCode);
@@ -333,9 +302,9 @@ namespace CodePaste.User_Controls
     /// <summary>
     /// Basic WebClient which stores useful values for later persual
     /// </summary>
-    class ResponseWebClient : WebClient
+    internal class ResponseWebClient : WebClient
     {
-        Uri _responseUri;
+        private Uri _responseUri;
 
         public Uri ResponseUri
         {
@@ -355,9 +324,9 @@ namespace CodePaste.User_Controls
     /// </summary>
     public static class UsefulRegex
     {
-
         public static String url = @"\b(?:https?://|www\.)\S+\b";
         public static String numericOnly = "[^0-9.-]+";
+
         public static bool IsTextAllowed(string text)
         {
             Regex regex = new Regex(numericOnly); //regex that matches disallowed text
@@ -368,12 +337,38 @@ namespace CodePaste.User_Controls
     public class CheckUrlsModel : ModelBase
     {
         private string _FileName;
-       
+
         private string[] _FromToOuputColumn = new string[3];
+
+        private ObservableCollection<String> _FromToOutputColumnColor = new ObservableCollection<String> { "white", "white", "white" };
+
+        public static readonly string[] ColumnPosition = new string[] { "From Column", "To Column", "Output Column" };
 
         public string[] FromToOutputColumn
         {
             get { return _FromToOuputColumn; }
+        }
+
+        /// <summary>
+        /// Set the color value of the model by position
+        /// </summary>
+        /// <param name="color"></param>
+        /// <param name="pos"></param>
+        public void SetColor(String color, int pos)
+        {
+            if (pos < this._FromToOutputColumnColor.Count)
+            {
+                _FromToOuputColumn[pos] = color;
+            }
+            base.OnPropertyChanged("FromOutputColumnColor");
+        }
+
+        public ObservableCollection<String> FromToOutputColumnColor
+        {
+            get
+            {
+                return _FromToOutputColumnColor;
+            }
         }
 
         public string FromColumn
@@ -423,8 +418,6 @@ namespace CodePaste.User_Controls
 
     public class DocumentSelector
     {
-
-
         /// <summary>
         /// Create a document selector which allows for the selection of one file
         /// </summary>

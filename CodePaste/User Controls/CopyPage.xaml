@@ -1,15 +1,15 @@
 ﻿<UserControl x:Class="CodePaste.User_Controls.CopyPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:controller="clr-namespace:CodePaste.Controller"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid Name="CopyPageGrid">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="97*"/>
-            <ColumnDefinition Width="53*"/>
+            <ColumnDefinition Width="97*" />
+            <ColumnDefinition Width="53*" />
         </Grid.ColumnDefinitions>
 
         <ComboBox x:Name="Word_Select"
@@ -17,17 +17,16 @@
                   DisplayMemberPath="Name"
                   SelectedValuePath="Name"
                   SelectedValue="{Binding Path=ConnectionView.CodeEntry}"
-                  HorizontalAlignment="Left" VerticalAlignment="Top" Width="{Binding ActualWidth, ElementName=CopyPageGrid}" Height="27" Margin="0,0,0,0" Grid.ColumnSpan="2"/>
-        <TextBlock 
+                  HorizontalAlignment="Left" VerticalAlignment="Top" Width="{Binding ActualWidth, ElementName=CopyPageGrid}" Height="27" Margin="0,0,0,0" Grid.ColumnSpan="2" />
+        <TextBlock
             Name="Code_Data_Value"
             HorizontalAlignment="Left"
-            Margin="0,42,0,0" 
-            TextWrapping="Wrap" 
+            Margin="0,42,0,0"
+            TextWrapping="Wrap"
             VerticalAlignment="Top"
-            Width="{Binding ActualWidth, ElementName=CopyPageGrid}" 
+            Width="{Binding ActualWidth, ElementName=CopyPageGrid}"
             Height="185"
-            Text="{Binding Path=ConnectionView.Code.Copy}" FontFamily="Times New Roman" FontSize="18" Grid.ColumnSpan="2"
-            />
+            Text="{Binding Path=ConnectionView.Code.Copy}" FontFamily="Times New Roman" FontSize="18" Grid.ColumnSpan="2" />
         <StackPanel MaxHeight="100" VerticalAlignment="Bottom" Grid.ColumnSpan="2">
             <Button  Content="Copy" Click="Button_Copy"></Button>
         </StackPanel>

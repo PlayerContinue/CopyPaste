@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Data;
 
 namespace CodePaste.Controllers.Converter
 {
-    class MainConverter : IValueConverter
+    internal class MainConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -22,8 +17,5 @@ namespace CodePaste.Controllers.Converter
             // Do the conversion from visibility to bool
             return value;
         }
-
     }
-
-    
 }
