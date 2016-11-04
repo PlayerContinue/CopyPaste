@@ -52,39 +52,62 @@ namespace CodePaste.User_Controls
 
 
 
-
         private void CheckUrls(object sender, RoutedEventArgs e)
         {
             CheckUrlsModel _context = this.DataContext as CheckUrlsModel;
-
-           
-            if (_context != null)
+            Int32[] _fromToOutput = new Int32[(int)_context.FromToOutputColumn.Length];
+         
+            //Confirm that the file is set
+            if (String.IsNullOrWhiteSpace(_context.FileName))
             {
-                Thread _ExcelThread = new Thread(new ThreadStart(delegate()
-                {
-
-                   
-
-                   
-
-                    try
-                    {
-
-                        this._ExDoc = new ExcelDocument(_context.FileName);//Open new document for reading
-                        UrlChecker.CheckURLS(_ExDoc, Int32.Parse(_context.FromColumn), Int32.Parse(_context.ToColumn), Int32.Parse(_context.OutputColumn));
-                        _ExDoc.SaveChange();
-                        this._ExDoc.CleanExcelDocument();
-                        MessageBox.Show("Finished", "Complete");
-
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Issue has occured", "Issue");
-                    }
-                }));
-                _ExcelThread.Start();
-
+                MessageBox.Show("No file selected, please select a file.", "Select File", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
+
+            
+           /* if (!Int32.TryParse(_context.FromColumn, out _fromToOutput[0]) || !Int32.TryParse(_context.ToColumn, out _fromToOutput[1]) || !Int32.TryParse(_context.OutputColumn, out _fromToOutput[2]))
+            {
+
+                
+            }*/
+            //Confirm that each of the values is a number
+            for (int i = 0; i < _fromToOutput.Length; i++)
+            {
+                if(!Int32.TryParse(_context.FromToOutputColumn[i], out _fromToOutput[i])){
+                    MessageBox.Show("Please Fill Out All Three Value With Numbers Greater Than 1", "One of the Rows was left empty", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
+
+                if (_context != null)
+                {
+                    //Create a new thread to prevent lockup on the visual thread
+                    //Replace this with a Threadpool in the future for better setup
+                    //Perhaps change delegate type as well
+                    Thread _ExcelThread = new Thread(new ParameterizedThreadStart(delegate(object obs)
+                    {
+
+                        int[] _toFromOutputArray = obs as int[];//[0] = url column to send from, [1] = desired url destination, [2] = output column
+                        try
+                        {
+
+                            this._ExDoc = new ExcelDocument(_context.FileName);//Open new document for reading
+                            UrlChecker.CheckURLS(_ExDoc, _toFromOutputArray[0], _toFromOutputArray[1], _toFromOutputArray[2]);
+                            _ExDoc.SaveChange();
+                            this._ExDoc.CleanExcelDocument();
+                            MessageBox.Show("Finished", "Complete");
+
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Issue has occured", "Issue");
+                            _ExDoc.CleanExcelDocument();
+                        }
+                    }));
+                    _ExcelThread.Start(_fromToOutput);
+
+                }
 
         }
 
@@ -345,39 +368,43 @@ namespace CodePaste.User_Controls
     public class CheckUrlsModel : ModelBase
     {
         private string _FileName;
-        private string _FromColumn;
-        private string _ToColumn;
-        private string _OutputColumn;
+       
+        private string[] _FromToOuputColumn = new string[3];
+
+        public string[] FromToOutputColumn
+        {
+            get { return _FromToOuputColumn; }
+        }
 
         public string FromColumn
         {
-            get { return _FromColumn; }
+            get { return _FromToOuputColumn[0]; }
             set
             {
-                if (_FromColumn == value) return;
-                _FromColumn = value;
+                if (_FromToOuputColumn[0] == value) return;
+                _FromToOuputColumn[0] = value;
                 base.OnPropertyChanged("FromColumn");
             }
         }
 
         public string ToColumn
         {
-            get { return _ToColumn; }
+            get { return _FromToOuputColumn[1]; }
             set
             {
-                if (_ToColumn == value) return;
-                _ToColumn = value;
+                if (_FromToOuputColumn[1] == value) return;
+                _FromToOuputColumn[1] = value;
                 base.OnPropertyChanged("ToColumn");
             }
         }
 
         public string OutputColumn
         {
-            get { return _OutputColumn; }
+            get { return _FromToOuputColumn[2]; }
             set
             {
-                if (_OutputColumn == value) return;
-                _OutputColumn = value;
+                if (_FromToOuputColumn[2] == value) return;
+                _FromToOuputColumn[2] = value;
                 base.OnPropertyChanged("OutputColumn");
             }
         }

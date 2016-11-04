@@ -3,18 +3,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        <Button Content="SelectFile" Margin="0,0,0,262" Click="FileSelect"></Button>
-        <TextBlock Text="{Binding Path=FileName}" Margin="0,43,0,227"></TextBlock>
-        <Label Content="From Url Column" HorizontalAlignment="Left"  VerticalAlignment="Top" Margin="0,65,0,0"/>
-        <TextBox Text="{Binding Path=FromColumn}"  Margin="0,91,0,179"></TextBox>
-        <Label Content="To Url Column" HorizontalAlignment="Left"  VerticalAlignment="Top" Margin="0,121,0,0"/>
-        <TextBox Text="{Binding Path=ToColumn}" Margin="0,152,0,118"></TextBox>
-        <Label Content="Output Column" HorizontalAlignment="Left" Margin="0,187,0,0" VerticalAlignment="Top"/>
-        <TextBox Text="{Binding Path=OutputColumn}" Margin="0,218,0,52"/>
-        <Button Content="Start" HorizontalAlignment="Left" Margin="0,253,0,0" VerticalAlignment="Top" Width="300" Height="47" Click="CheckUrls"/>
+             mc:Ignorable="d" >
+    <Grid Name="_MainGrid_">
+        <Button Content="SelectFile" Margin="0,0,0,262" Width="{Binding ActualWidth, ElementName=_MainGrid_}" Click="FileSelect"></Button>
+        <TextBlock Text="{Binding Path=FileName}" Width="{Binding ActualWidth, ElementName=_MainGrid_}"  Margin="0,43,0,227"></TextBlock>
+        <Label Content="From Url Column" HorizontalAlignment="Left" Width="{Binding ActualWidth, ElementName=_MainGrid_}"  VerticalAlignment="Top" Margin="0,65,0,0"/>
+        <TextBox Text="{Binding Path=FromColumn}" Width="{Binding ActualWidth, ElementName=_MainGrid_}" Margin="0,91,0,179"></TextBox>
+        <Label Content="To Url Column" HorizontalAlignment="Left" Width="{Binding ActualWidth, ElementName=_MainGrid_}"  VerticalAlignment="Top" Margin="0,121,0,0"/>
+        <TextBox Text="{Binding Path=ToColumn}" Width="{Binding ActualWidth, ElementName=_MainGrid_}" Margin="0,152,0,118"></TextBox>
+        <Label Content="Output Column" Width="{Binding ActualWidth, ElementName=_MainGrid_}" HorizontalAlignment="Left" Margin="0,187,0,0" VerticalAlignment="Top"/>
+        <TextBox Text="{Binding Path=OutputColumn}" Width="{Binding ActualWidth, ElementName=_MainGrid_}" Margin="0,218,0,52"/>
+        <Button Content="Start" HorizontalAlignment="Left" Margin="0,253,0,0" Width="{Binding ActualWidth, ElementName=_MainGrid_}" VerticalAlignment="Top" Height="47" Click="CheckUrls"/>
         
 
 
