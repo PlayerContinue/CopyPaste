@@ -88,9 +88,9 @@ namespace CodePaste.User_Controls
             //Confirm that each of the values is a number
             for (int i = 0; i < _fromToOutput.Length; i++)
             {
-                if (!Int32.TryParse(_context.FromToOutputColumn[i], out _fromToOutput[i]))
+                if (!Int32.TryParse(_context.FromToOutputColumn[i], out _fromToOutput[i]) || _fromToOutput[i] <1)
                 {
-                    _errorMessage.Append(String.Format("Please fill out {0} with value greater than 1", CheckUrlsModel.ColumnPosition[i]));
+                    _errorMessage.Append(String.Format("Please fill out {0} with value greater than 1\n", CheckUrlsModel.ColumnPosition[i]));
                     _context.FromToOutputColumnColor[i] = "Red";
 
                     _failure = true;

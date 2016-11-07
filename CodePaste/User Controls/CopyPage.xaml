@@ -18,16 +18,17 @@
                   SelectedValuePath="Name"
                   SelectedValue="{Binding Path=ConnectionView.CodeEntry}"
                   HorizontalAlignment="Left" VerticalAlignment="Top" Width="{Binding ActualWidth, ElementName=CopyPageGrid}" Height="27" Margin="0,0,0,0" Grid.ColumnSpan="2" />
+        <ScrollViewer Width="{Binding ActualWidth, ElementName=CopyPageGrid}" Grid.ColumnSpan="2" Margin="0,32,0,22">
         <TextBlock
             Name="Code_Data_Value"
             HorizontalAlignment="Left"
             Margin="0,42,0,0"
             TextWrapping="Wrap"
             VerticalAlignment="Top"
-            Width="{Binding ActualWidth, ElementName=CopyPageGrid}"
-            Height="185"
-            Text="{Binding Path=ConnectionView.Code.Copy}" FontFamily="Times New Roman" FontSize="18" Grid.ColumnSpan="2" />
+            Text="{Binding Path=ConnectionView.Code.Copy}" FontFamily="Times New Roman" FontSize="18" Grid.ColumnSpan="2"/>
+        </ScrollViewer>
         <StackPanel MaxHeight="100" VerticalAlignment="Bottom" Grid.ColumnSpan="2">
+            
             <Button  Content="Copy" Click="Button_Copy"></Button>
         </StackPanel>
     </Grid>
