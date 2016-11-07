@@ -22,7 +22,7 @@
             TextWrapping="Wrap"
             VerticalAlignment="Top"
             Width="{Binding ActualWidth, ElementName=CopyPageGrid}"
-            Text="{Binding Path=ConnectionView.Code.Copy,Mode=TwoWay}" FontFamily="Times New Roman" FontSize="18" Grid.ColumnSpan="2" Height="218" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+            Text="{Binding Path=ConnectionView.Code.Copy,Mode=TwoWay}" AcceptsReturn="True" FontFamily="Times New Roman" FontSize="18" Grid.ColumnSpan="2" Height="218" ScrollViewer.VerticalScrollBarVisibility="Auto" />
         <StackPanel MaxHeight="100" VerticalAlignment="Bottom" Grid.ColumnSpan="2">
             <Button  Content="Save" Click="Save"></Button>
         </StackPanel>
