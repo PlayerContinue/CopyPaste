@@ -8,12 +8,13 @@
     <Grid Name="CopyPageGrid">
 
         <ComboBox x:Name="Word_Select"
+                  SelectionChanged="OnSelectionChange"
                   ItemsSource="{Binding Path=ConnectionView.CodeEntries}"
                   DisplayMemberPath="Name"
                   SelectedValuePath="Name"
                   SelectedValue="{Binding Path=ConnectionView.CodeEntry}"
                   HorizontalAlignment="Left" VerticalAlignment="Top" Width="{Binding ActualWidth, ElementName=CopyPageGrid}" Grid.ColumnSpan="2" />
-        <TextBox x:Name="Title" HorizontalAlignment="Left" Height="23" Margin="0,27,0,0" TextWrapping="Wrap" Text="{Binding Path=ConnectionView.NewCodeEntry}" VerticalAlignment="Top" Width="{Binding ActualWidth, ElementName=CopyPageGrid}"  Grid.ColumnSpan="2" />
+        <TextBox x:Name="Title" HorizontalAlignment="Left" Height="23" Margin="0,27,0,0" TextWrapping="Wrap" Text="{Binding Path=ConnectionView.NewCodeEntry,Mode=TwoWay}" VerticalAlignment="Top" Width="{Binding ActualWidth, ElementName=CopyPageGrid}"  Grid.ColumnSpan="2" />
         <TextBox
             Name="Code_Data_Value"
             HorizontalAlignment="Left"
@@ -21,7 +22,7 @@
             TextWrapping="Wrap"
             VerticalAlignment="Top"
             Width="{Binding ActualWidth, ElementName=CopyPageGrid}"
-            Text="{Binding Path=ConnectionView.Code.Copy}" FontFamily="Times New Roman" FontSize="18" Grid.ColumnSpan="2" Height="218" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+            Text="{Binding Path=ConnectionView.Code.Copy,Mode=TwoWay}" FontFamily="Times New Roman" FontSize="18" Grid.ColumnSpan="2" Height="218" ScrollViewer.VerticalScrollBarVisibility="Auto" />
         <StackPanel MaxHeight="100" VerticalAlignment="Bottom" Grid.ColumnSpan="2">
             <Button  Content="Save" Click="Save"></Button>
         </StackPanel>

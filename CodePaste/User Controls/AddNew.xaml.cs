@@ -1,4 +1,5 @@
-﻿using CodePaste.Controller;
+﻿using CodePaste.Base_Classes;
+using CodePaste.Controller;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -32,8 +33,10 @@ namespace CodePaste.User_Controls
     /// <summary>
     /// Object containing function for editing an xmldocument for the current program
     /// </summary>
-    public class EditXMLDocument
+    public class EditXMLDocument : ModelBase
     {
+
+        
         /// <summary>
         /// Add a new XML Node to the document
         /// </summary>
@@ -51,9 +54,9 @@ namespace CodePaste.User_Controls
                 _root.AppendChild(_newElement);
                 document.SaveXML();
             }
-            catch (Exception x)
+            catch 
             {
-                throw x;
+                MessageBox.Show("Unable to save new value", "Issue", MessageBoxButton.OK, MessageBoxImage.Error); 
             }
         }
 
@@ -66,13 +69,20 @@ namespace CodePaste.User_Controls
         /// <param name="newDescription">The new description</param>
         public static void EditXML(XMLDocumentModel document, string previousTitle, string newtitle, string newDescription)
         {
-            //Select the node with the given title
-            XmlNode _node = document.Document.SelectSingleNode(String.Format("root/node[@name='{0}']", previousTitle));
-            //Replace the name attribute with the new title
-            _node.Attributes["name"].Value = newtitle;
-            //Replace the description
-            _node.InnerText = newDescription;
-            document.SaveXML();
+            try
+            {
+                //Select the node with the given title
+                XmlNode _node = document.Document.SelectSingleNode(String.Format("root/node[@name='{0}']", previousTitle));
+                //Replace the name attribute with the new title
+                _node.Attributes["name"].Value = newtitle;
+                //Replace the description
+                _node.InnerText = newDescription;
+                document.SaveXML();
+            }
+            catch
+            {
+                MessageBox.Show("Unable to save edit", "Issue", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

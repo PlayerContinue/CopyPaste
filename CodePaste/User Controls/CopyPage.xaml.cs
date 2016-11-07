@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using CodePaste.Controller;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace CodePaste.User_Controls
@@ -20,7 +21,9 @@ namespace CodePaste.User_Controls
         /// <param name="e"></param>
         private void Button_Copy(object sender, RoutedEventArgs e)
         {
-            Clipboard.SetText(Code_Data_Value.Text);
+            MainControlModel _model = this.DataContext as MainControlModel;
+
+            Clipboard.SetText(_model.ConnectionView.Code.Copy);
         }
     }
 }

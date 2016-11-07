@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace CodePaste.User_Controls
@@ -8,9 +9,16 @@ namespace CodePaste.User_Controls
     /// </summary>
     public partial class EditPage : UserControl
     {
+        private String _PreviousTitle;
+
         public EditPage()
         {
             InitializeComponent();
+        }
+
+        private void OnSelectionChange(object sender, RoutedEventArgs e)
+        {
+          this._PreviousTitle = ((MainControlModel)this.DataContext).ConnectionView.CodeEntry;
         }
 
         /// <summary>
@@ -22,7 +30,7 @@ namespace CodePaste.User_Controls
         {
             try
             {
-                EditXMLDocument.EditXML(((MainControlModel)this.DataContext).Document, ((MainControlModel)this.DataContext).ConnectionView.CodeEntry, this.Title.Text, this.Code_Data_Value.Text);
+                EditXMLDocument.EditXML(((MainControlModel)this.DataContext).Document, this._PreviousTitle, ((MainControlModel)this.DataContext).ConnectionView.NewCodeEntry, ((MainControlModel)this.DataContext).ConnectionView.Code.Copy);
             }
             catch
             {

@@ -18,7 +18,7 @@ namespace CodePaste.User_Controls
     /// </summary>
     public partial class CheckURLS : UserControl
     {
-        private ExcelDocument _ExDoc;//Stored excel document
+      
 
         public CheckURLS()
         {
@@ -54,18 +54,22 @@ namespace CodePaste.User_Controls
             Thread _ExcelThread = new Thread(new ParameterizedThreadStart(delegate(object obs)
             {
                 int[] _toFromOutputArray = obs as int[];//[0] = url column to send from, [1] = desired url destination, [2] = output column
+                ExcelDocument _exDoc = null; //The Excel Document
                 try
                 {
-                    this._ExDoc = new ExcelDocument(filename);//Open new document for reading
-                    UrlChecker.CheckURLS(_ExDoc, _toFromOutputArray[0], _toFromOutputArray[1], _toFromOutputArray[2]);
-                    _ExDoc.SaveChange();
-                    this._ExDoc.CleanExcelDocument();
-                    MessageBox.Show("Finished", "Complete");
+                    _exDoc = new ExcelDocument(filename);//Open new document for reading
+                    UrlChecker.CheckURLS(_exDoc, _toFromOutputArray[0], _toFromOutputArray[1], _toFromOutputArray[2]);
+                    _exDoc.SaveChange();
+                    _exDoc.CleanExcelDocument();
+                    MessageBox.Show("Finished" + filename, "Complete");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Issue has occured", "Issue", MessageBoxButton.OK, MessageBoxImage.Error);
-                    _ExDoc.CleanExcelDocument();
+                    MessageBox.Show("Issue has occured" + ex.Message, "Issue", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (_exDoc != null)
+                    {
+                        _exDoc.CleanExcelDocument();
+                    }
                 }
             }));
             _ExcelThread.Start(listOfValues);
@@ -85,7 +89,8 @@ namespace CodePaste.User_Controls
                 _failure = true;
             }
 
-            //Confirm that each of the values is a number
+            //Confirm that each of the values is a number and that it is greater than 0. 
+            //Excel runs using columns as numbers, starting at 1 rather than 0
             for (int i = 0; i < _fromToOutput.Length; i++)
             {
                 if (!Int32.TryParse(_context.FromToOutputColumn[i], out _fromToOutput[i]) || _fromToOutput[i] <1)
@@ -179,7 +184,7 @@ namespace CodePaste.User_Controls
                 //Confirm both cells contain values
                 if (excel.xlRange.Cells[i, row1] != null && excel.xlRange.Cells[i, row1].Value2 != null && excel.xlRange.Cells[i, row2].Value2 != null)
                 {
-                    _url = excel.xlRange.Cells[i, row1].Value2.ToString();
+                    _url = excel.xlRange.Cells[i, row1].Value2.ToString().Trim();
                     _urlMatch = _urlRegex.Match(_url);
                     if (_urlMatch.Success)
                     {
@@ -324,7 +329,8 @@ namespace CodePaste.User_Controls
     /// </summary>
     public static class UsefulRegex
     {
-        public static String url = @"\b(?:https?://|www\.)\S+\b";
+        //public static String url = @"\b(?:https?://|www\.)\S+\b";
+        public static String url = @"\b((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?\b";
         public static String numericOnly = "[^0-9.-]+";
 
         public static bool IsTextAllowed(string text)
