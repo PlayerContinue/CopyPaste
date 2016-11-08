@@ -61,7 +61,7 @@ namespace CodePaste.User_Controls
                     UrlChecker.CheckURLS(_exDoc, _toFromOutputArray[0], _toFromOutputArray[1], _toFromOutputArray[2]);
                     _exDoc.SaveChange();
                     _exDoc.CleanExcelDocument();
-                    MessageBox.Show("Finished" + filename, "Complete");
+                    MessageBox.Show(filename, "Finshed");
                 }
                 catch (Exception ex)
                 {
@@ -142,6 +142,14 @@ namespace CodePaste.User_Controls
             xlWorkbook.Save();
         }
 
+        //Release an object if it is not null
+        private void ReleaseObject(object excelObject){
+            if (excelObject != null)
+            {
+                Marshal.ReleaseComObject(excelObject);
+            }
+        }
+
         public void CleanExcelDocument()
         {
             //cleanup
@@ -153,16 +161,16 @@ namespace CodePaste.User_Controls
             //  ex: [somthing].[something].[something] is bad
 
             //release com objects to fully kill excel process from running in the background
-            Marshal.ReleaseComObject(xlRange);
-            Marshal.ReleaseComObject(xlWorksheet);
+            ReleaseObject(xlRange);
+            ReleaseObject(xlWorksheet);
 
             //close and release
             xlWorkbook.Close();
-            Marshal.ReleaseComObject(xlWorkbook);
+            ReleaseObject(xlWorkbook);
 
             //quit and release
             xlApp.Quit();
-            Marshal.ReleaseComObject(xlApp);
+            ReleaseObject(xlApp);
         }
     }
 
@@ -181,6 +189,7 @@ namespace CodePaste.User_Controls
 
             for (int i = 1; i <= excel.xlRange.Rows.Count; i++)
             {
+                _outputValue = "";
                 //Confirm both cells contain values
                 if (excel.xlRange.Cells[i, row1] != null && excel.xlRange.Cells[i, row1].Value2 != null && excel.xlRange.Cells[i, row2].Value2 != null)
                 {
